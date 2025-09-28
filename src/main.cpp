@@ -3,10 +3,10 @@
 #include <random>
 #include <chrono>
 
-// Headers provistos por ti
-#include "binary_heap.h"      // class template: binary_heap<T> con push(T)
-#include "binomial_heap.h"    // class template: binomial_heap<T> con push(T)
-#include "fibonacci.hpp"        // class template: FibonacciHeap<T> con insert(T)
+// Headers provistos por el usuario
+#include "binary_heap.h"      // se asume: binary_heap<T> con push(T) y pop()
+#include "binomial_heap.h"    // se asume: binomial_heap<T> con push(T) y pop()
+#include "fibonacci.hpp"        // se asume: FibonacciHeap<T> con insert(T) y extractMin()
 
 int main(int argc, char* argv[]) {
     using namespace std;
@@ -25,56 +25,68 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Generador de números aleatorios (determinístico para reproducibilidad)
-    mt19937 gen();
+    // Generador determinístico para reproducibilidad
+    mt19937 gen(3123123u);
     uniform_int_distribution<int> dist(1, 1'000'000'000);
 
     vector<int> datos;
     datos.reserve(n);
     for (size_t i = 0; i < n; ++i) datos.push_back(dist(gen));
 
-    long long tiempo_binary = 0;
-    long long tiempo_binomial = 0;
-    long long tiempo_fibonacci = 0;
+    long long t_ins_bin = 0, t_ins_bino = 0, t_ins_fibo = 0;
+    long long t_ext_bin = 0, t_ext_bino = 0, t_ext_fibo = 0;
 
-    // ---- Binary Heap (push) ----
+    // ---- Binary Heap (push + pop) ----
     {
         binary_heap<int> bh;
         auto t0 = steady_clock::now();
-        for (size_t i = 0; i < n; ++i) {
-            bh.push(datos[i]);
-        }
+        for (size_t i = 0; i < n; ++i) bh.push(datos[i]);
         auto t1 = steady_clock::now();
-        tiempo_binary = duration_cast<milliseconds>(t1 - t0).count();
+        t_ins_bin = duration_cast<microseconds>(t1 - t0).count();
+
+        t0 = steady_clock::now();
+        for (size_t i = 0; i < n; ++i) bh.pop();
+        t1 = steady_clock::now();
+        t_ext_bin = duration_cast<microseconds>(t1 - t0).count();
     }
 
-    // ---- Binomial Heap (push) ----
+    // ---- Binomial Heap (push + pop) ----
     {
         binomial_heap bino;
         auto t0 = steady_clock::now();
-        for (size_t i = 0; i < n; ++i) {
-            bino.push(datos[i]);
-        }
+        for (size_t i = 0; i < n; ++i) bino.push(datos[i]);
         auto t1 = steady_clock::now();
-        tiempo_binomial = duration_cast<milliseconds>(t1 - t0).count();
+        t_ins_bino = duration_cast<microseconds>(t1 - t0).count();
+
+        t0 = steady_clock::now();
+        for (size_t i = 0; i < n; ++i) bino.pop();
+        t1 = steady_clock::now();
+        t_ext_bino = duration_cast<microseconds>(t1 - t0).count();
     }
 
-    // ---- Fibonacci Heap (insert) ----
+    // ---- Fibonacci Heap (insert + extractMin) ----
     {
         FibonacciHeap<int> fibo;
         auto t0 = steady_clock::now();
-        for (size_t i = 0; i < n; ++i) {
-            fibo.insert(datos[i]);
-        }
+        for (size_t i = 0; i < n; ++i) fibo.insert(datos[i]);
         auto t1 = steady_clock::now();
-        tiempo_fibonacci = duration_cast<milliseconds>(t1 - t0).count();
+        t_ins_fibo = duration_cast<microseconds>(t1 - t0).count();
+
+        t0 = steady_clock::now();
+        for (size_t i = 0; i < n; ++i) fibo.removeMinimum();
+        t1 = steady_clock::now();
+        t_ext_fibo = duration_cast<microseconds>(t1 - t0).count();
     }
 
-    // ---- Salida CSV en una sola línea ----
-    cout << n << "," 
-         << tiempo_binary << "," 
-         << tiempo_binomial << "," 
-         << tiempo_fibonacci << "\n";
+    // CSV sin encabezado:
+    // n, tiempo_binary_insert_ms, tiempo_binomial_insert_ms, tiempo_fibonacci_insert_ms, tiempo_binary_extract_ms, tiempo_binomial_extract_ms, tiempo_fibonacci_extract_ms
+    cout << n << ","
+         << t_ins_bin  << ","
+         << t_ins_bino << ","
+         << t_ins_fibo << ","
+         << t_ext_bin  << ","
+         << t_ext_bino << ","
+         << t_ext_fibo << "\n";
 
     return 0;
 }

@@ -1,3 +1,4 @@
+compile_commands.json
 *.out
 *.exe
 test*
@@ -8,3 +9,4 @@ test*
 vgcore*
 build/*.o
 */build/*.o
+.cache/
