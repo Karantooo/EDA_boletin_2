@@ -24,15 +24,17 @@ OBJ_DIR := ./build
 
 # Solo toma como "experimentos" los archivos que matchean este patrón
 EXPERIMENT_SOURCES := $(wildcard $(SRC_DIR)/experimento_*.cpp)
+EXPERIMENT_NAMES   := $(notdir $(basename $(EXPERIMENT_SOURCES)))
 
-# Nombres base sin ruta ni extensión: ej. experimento_1, experimento_2
-EXPERIMENT_NAMES := $(notdir $(basename $(EXPERIMENT_SOURCES)))
+# NUEVO (mínimo cambio): también tomar "script_*.cpp"
+SCRIPT_SOURCES := $(wildcard $(SRC_DIR)/script_*.cpp)
+SCRIPT_NAMES   := $(notdir $(basename $(SCRIPT_SOURCES)))
 
-# Ejecutables: experimento_1.out, experimento_2.out, ...
-TARGETS := $(addsuffix .out,$(EXPERIMENT_NAMES))
+# Ejecutables: experimento_1.out, experimento_2.out, script_1.out, ...
+TARGETS := $(addsuffix .out,$(EXPERIMENT_NAMES) $(SCRIPT_NAMES))
 
-# Objetos correspondientes: build/experimento_1.o, ...
-EXPERIMENT_OBJECTS := $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(EXPERIMENT_NAMES)))
+# Objetos correspondientes: build/experimento_1.o, build/script_1.o, ...
+EXPERIMENT_OBJECTS := $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(EXPERIMENT_NAMES) $(SCRIPT_NAMES)))
 
 # =========================
 #  Phonies
@@ -43,17 +45,16 @@ EXPERIMENT_OBJECTS := $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(EXPERIMENT_NAMES)
 # =========================
 #  Reglas principales
 # =========================
-# Compila todos los experimentos
+# Compila todos los experimentos y scripts
 all: $(TARGETS)
 
 # Enlaza cada ejecutable a partir de su .o
-# Regla genérica: target "experimento_X.out" depende de "build/experimento_X.o"
+# Regla genérica: target "X.out" depende de "build/X.o"
 %.out: $(OBJ_DIR)/%.o | $(OBJ_DIR)
 	@echo "Linkeando $@ ..."
 	@$(CXX) $< -o $@ $(CXXFLAGS)
 
-# Compila el .o de cada experimento
-# build/experimento_X.o se compila desde src/experimento_X.cpp
+# Compila el .o de cada fuente: build/X.o desde src/X.cpp
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 	@echo "Compilando $< ..."
 	@$(CXX) -c $< -o $@ $(CXXFLAGS)
@@ -102,7 +103,7 @@ clean:
 # =========================
 help:
 	@echo "Targets disponibles:"
-	@echo "  all           -> compila todos los experimento_*.cpp en src/"
+	@echo "  all           -> compila todos los experimento_*.cpp y script_*.cpp en src/"
 	@echo "  run           -> ejecuta todos los .out (sin argumentos)"
 	@echo "  run1/run2     -> ejecuta experimento_1.out / experimento_2.out"
 	@echo "  debug1/2      -> abre gdb con experimento_1.out / experimento_2.out"
