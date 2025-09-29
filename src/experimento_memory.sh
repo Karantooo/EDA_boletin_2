@@ -2,7 +2,7 @@
 set -euo pipefail
 
 EXEC="../experimento_memory_binary.out"             # Cambia si tu binario tiene otro nombre
-OUTPUT_FILE="resultados_memoria_binary_heap.csv"
+OUTPUT_FILE="../resultados_experimentos/resultados_memoria_binary_heap.csv"
 sizes=(1000 5000 10000 50000 100000 250000 500000 1000000)
 
 # Flags y nombres legibles para la columna "estructura"
