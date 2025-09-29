@@ -26,7 +26,8 @@ int main(int argc, char* argv[]) {
     }
 
     // Generador determinístico para reproducibilidad
-    mt19937 gen(3123123u);
+    std::random_device rd;
+    std::mt19937 gen(rd());
     uniform_int_distribution<int> dist(1, 1'000'000'000);
 
     vector<int> datos;

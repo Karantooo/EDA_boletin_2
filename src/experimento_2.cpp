@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     constexpr uint64_t TOTAL_OPS = 1'000'000ULL;
 
     // RNG determinista
-    mt19937_64 rng(0xC0FFEEULL);
+    mt19937_64 rng(std::random_device{}());
     uniform_real_distribution<double> U01(0.0, 1.0);
     uniform_int_distribution<int> Uval(numeric_limits<int>::min()/2,
                                        numeric_limits<int>::max()/2);
